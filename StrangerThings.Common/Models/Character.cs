@@ -10,7 +10,7 @@ namespace StrangerThings.Common.Models
 	public class Character
 	{
 		public string Name { get; set; }
-		public char gender { get; set; }
-		public int age { get; set; }
+		public char Gender { get; set; }
+		public int Age { get; set; }
 	}
 }

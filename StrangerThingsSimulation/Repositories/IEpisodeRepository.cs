@@ -23,6 +23,13 @@ namespace StrangerThings.Server.Repositories
 		Task<Episode> GetEpisodeByNumberAsync(int episodeNumber);
 
 		/// <summary>
+		/// Return JSON data for episodes containing the input character
+		/// </summary>
+		/// <param name="charName">character Name field to query</param>
+		/// <returns>Task<List<Episode>></returns>
+		Task<List<Episode>> GetEpisodesWithCharacterAsync(string charName);
+
+		/// <summary>
 		/// Returns JSON data for episode created if successful
 		/// </summary>
 		/// <param name="episode">The episode being created</param>
