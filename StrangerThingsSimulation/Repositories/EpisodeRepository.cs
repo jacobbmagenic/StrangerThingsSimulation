@@ -1,6 +1,6 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Logging;
 using StrangerThings.Common.Models;
-using StrangerThings.Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +14,16 @@ namespace StrangerThings.Server.Repositories
 	public class EpisodeRepository : IEpisodeRepository
 	{
 		private IConnectionFactory _ConnectionFactory;
+		private ILogger _Logger;
 
 		/// <summary>
 		/// Instantiate EpisodeRepository with ConnectionFactory injection
 		/// </summary>
 		/// <param name="connectionFactory">Variable containing DB connection data</param>
-		public EpisodeRepository(IConnectionFactory connectionFactory)
+		public EpisodeRepository(IConnectionFactory connectionFactory, ILogger logger)
 		{
 			_ConnectionFactory = connectionFactory;
+			_Logger = logger;
 		}
 
 		/// <summary>
@@ -30,13 +32,22 @@ namespace StrangerThings.Server.Repositories
 		/// <returns>Task<List<Episode>></returns>
 		public async Task<List<Episode>> GetAllEpisodesAsync()
 		{
-			var query = $"Select [Id], [EpisodeNumber], [SeasonNumber], [EpisodeName], [RuntimeMinutes], [Rating] From [dbo].[Episode]";
-
-			using (var cn = _ConnectionFactory.GetConnection())
+			try
 			{
-				var episodes = await cn.QueryAsync<Episode>(query);
-				cn.Dispose();
-				return episodes.ToList();
+
+				var query = $"Select [Id], [EpisodeNumber], [SeasonNumber], [EpisodeName], [RuntimeMinutes], [Rating] From [dbo].[Episode]";
+
+				using (var cn = _ConnectionFactory.GetConnection())
+				{
+					var episodes = await cn.QueryAsync<Episode>(query);
+					cn.Dispose();
+					return episodes.ToList();
+				}
+			}
+			catch(Exception ex)
+			{
+				_Logger.LogInformation($"Unexpected error: {ex.ToString()}");
+				throw new Exception(ex.ToString());
 			}
 		}
 
@@ -56,10 +67,44 @@ namespace StrangerThings.Server.Repositories
 
 				if (!episode.Any())
 				{
-					throw new Exception("No episodes found for the given inputs.");  //TODO:  Implement better error handling and logging
+					_Logger.LogInformation("No episodes found for the given inputs.");
+					throw new Exception("No episodes found for the given inputs.");
 				}
 				else
 					return episode.FirstOrDefault();
+			}
+		}
+
+		/// <summary>
+		/// Return JSON data for episodes containing the input character
+		/// </summary>
+		/// <param name="charName">character Name field to query</param>
+		/// <returns>Task<List<Episode>></returns>
+		public async Task<List<Episode>> GetEpisodesWithCharacterAsync(string charName) {
+			try
+			{
+
+				var query = $"Select [EpisodeNumber], [SeasonNumber], [EpisodeName], [RuntimeMinutes], [Rating] " +
+					$"From [dbo].[Episode] Inner Join [dbo].[CharacterAppearance] On " +
+					$"[dbo].[Episode].[EpisodeNumber] = [dbo].[CharacterAppearance].[EpisodePresent] Where [Name] = \'{charName}\'";
+
+				using (var cn = _ConnectionFactory.GetConnection())
+				{
+					var episodes = await cn.QueryAsync<Episode>(query);
+					cn.Dispose();
+
+					if (!episodes.Any())
+					{
+						return new List<Episode>();
+					}
+					else
+						return episodes.ToList();
+				}
+			}
+			catch (Exception ex)
+			{
+				_Logger.LogInformation($"Unexpected error: {ex.ToString()}");
+				throw new Exception(ex.ToString());
 			}
 		}
 
@@ -85,7 +130,8 @@ namespace StrangerThings.Server.Repositories
 			}
 			catch
 			{
-				throw new Exception("Invalid input episode.");  //TODO:  Implement better error handling and logging
+				_Logger.LogInformation("Invalid input episode.");
+				throw new Exception("Invalid input episode.");
 			}
 		}
 
@@ -113,7 +159,8 @@ namespace StrangerThings.Server.Repositories
 			}
 			catch
 			{
-				throw new Exception("Invalid input episode.");  //TODO:  Implement better error handling and logging
+				_Logger.LogInformation("Invalid input episode.");
+				throw new Exception("Invalid input episode.");
 			}
 		}
 
@@ -134,7 +181,8 @@ namespace StrangerThings.Server.Repositories
 
 				if (!deletedEpisode.Any())
 				{
-					throw new Exception("No episodes found for the given inputs.");  //TODO:  Implement better error handling and logging
+					_Logger.LogInformation("No episodes found for the given inputs.");
+					throw new Exception("No episodes found for the given inputs.");
 				}
 				else
 					return deletedEpisode.FirstOrDefault();

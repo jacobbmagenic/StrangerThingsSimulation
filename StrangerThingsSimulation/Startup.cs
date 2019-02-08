@@ -32,6 +32,10 @@ namespace StrangerThingsSimulation
 
 			services.AddScoped<IEpisodeService, EpisodeService>();
 			services.AddScoped<IEpisodeRepository, EpisodeRepository>();
+			services.AddScoped<ICharacterService, CharacterService>();
+			services.AddScoped<ICharacterRepository, CharacterRepository>();
+			services.AddScoped<ISeasonService, SeasonService>();
+			services.AddScoped<ISeasonRepository, SeasonRepository>();
 			services.AddScoped<IConnectionFactory, ConnectionFactory>();
 
 			services.Configure<ConnectionStringConfig>(

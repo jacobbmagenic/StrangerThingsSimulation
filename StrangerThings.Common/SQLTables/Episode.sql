@@ -23,3 +23,10 @@ UNIQUE NONCLUSTERED
 ) ON [PRIMARY]
 
 GO
+
+ALTER TABLE [dbo].[Episode]  WITH CHECK ADD  CONSTRAINT [fk_season] FOREIGN KEY([SeasonNumber])
+REFERENCES [dbo].[Season] ([SeasonNumber])
+GO
+
+ALTER TABLE [dbo].[Episode] CHECK CONSTRAINT [fk_season]
+GO

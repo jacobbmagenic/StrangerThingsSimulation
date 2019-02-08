@@ -49,14 +49,13 @@ namespace StrangerThingsSimulation.Controllers
 		/// <summary>
 		/// Returns JSON data for episode that a given character is featured in
 		/// </summary>
-		/// <param name="characterName">The character that must be in each episode returned</param>
+		/// <param name="charName">The character that must be in each episode returned</param>
 		/// <returns>Task<ActionResult<Episode>></returns>
 		[HttpGet]
-		[Route("api/episode/getEpisodesWithCharacter/{name}")]
-		public async Task<ActionResult<List<Episode>>> GetEpisodesWithCharacter(int episodeNumber)          // -- TODO --
+		[Route("episodes")]
+		public async Task<ActionResult<List<Episode>>> GetEpisodesWithCharacter(string containingCharacter)
 		{
-			//return await _EpisodeService.GetEpisodesWithCharacterAsync(episodeNumber);
-			return null;
+			return await _EpisodeService.GetEpisodesWithCharacterAsync(containingCharacter);
 		}
 
 		/// <summary>
