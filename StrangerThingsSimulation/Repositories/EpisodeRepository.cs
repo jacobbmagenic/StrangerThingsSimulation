@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using StrangerThings.Common.Models;
-using StrangerThings.Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,6 +59,30 @@ namespace StrangerThings.Server.Repositories
 				}
 				else
 					return episode.FirstOrDefault();
+			}
+		}
+
+		/// <summary>
+		/// Return JSON data for episodes containing the input character
+		/// </summary>
+		/// <param name="charName">character Name field to query</param>
+		/// <returns>Task<List<Episode>></returns>
+		public async Task<List<Episode>> GetEpisodesWithCharacterAsync(string charName) {
+			var query = $"Select [EpisodeNumber], [SeasonNumber], [EpisodeName], [RuntimeMinutes], [Rating] " +
+				$"From [dbo].[Episode] Inner Join [dbo].[CharacterAppearance] On " +
+				$"[dbo].[Episode].[EpisodeNumber] = [dbo].[CharacterAppearance].[EpisodePresent] Where [Name] = \'{charName}\'";
+
+			using (var cn = _ConnectionFactory.GetConnection())
+			{
+				var episodes = await cn.QueryAsync<Episode>(query);
+				cn.Dispose();
+
+				if (!episodes.Any())
+				{
+					return new List<Episode>();
+				}
+				else
+					return episodes.ToList();
 			}
 		}
 

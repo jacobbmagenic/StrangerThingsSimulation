@@ -23,6 +23,13 @@ namespace StrangerThings.Server.Services
 		Task<Episode> GetEpisodeByNumberAsync(int episodeNumber);
 
 		/// <summary>
+		/// Makes call to EpisodeRepository to get episode data containing a given character
+		/// </summary>
+		/// <param name="charName"></param>
+		/// <returns>Task<List<Episode>></returns>
+		Task<List<Episode>> GetEpisodesWithCharacterAsync(string charName);
+
+		/// <summary>
 		/// Makes a call to the EpisodeRepository to post given episode, returns episode if added successfully
 		/// </summary>
 		/// <param name="episode">Episode being added</param>
