@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StrangerThings.Client\StrangerThings.Client.csproj" />
     <ProjectReference Include="..\StrangerThingsSimulation\StrangerThings.Server.csproj" />
   </ItemGroup>
 

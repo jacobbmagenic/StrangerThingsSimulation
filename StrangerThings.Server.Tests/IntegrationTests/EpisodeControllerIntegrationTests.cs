@@ -1,44 +1,56 @@
-﻿using Dapper;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StrangerThings.Client.Services;
 using StrangerThings.Common.Models;
-using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
-using System.Text;
 
 namespace StrangerThings.Server.Tests.IntegrationTests
 {
 	[TestClass]
 	public class EpisodeControllerIntegrationTests
 	{
-		protected IConnectionFactory _ConnectionFactory;
+		private string baseUrl;
 
 		[TestInitialize]
-		public void Initialize(IConnectionFactory connectionFactory)
+		public void Initialize()
 		{
-			_ConnectionFactory = connectionFactory;
+			baseUrl = "https://localhost:44385/";
 		}
 
 		[TestMethod]
-		public async void GetAllEpisodesAsyncTest()
+		public void GetAllEpisodesAsyncTest()
 		{
-			Initialize(_ConnectionFactory);
-			var tester = new List<Episode>();
-			var query = $"Select [Id], [EpisodeNumber], [SeasonNumber], [EpisodeName], [RuntimeMinutes], [Rating] From [dbo].[Episode]";
+			var episodeClientService = new EpisodeClientService(baseUrl);
+			var episodes = episodeClientService.GetAllEpisodes();
 
-			using (var cn = _ConnectionFactory.GetConnection())
-			{
-				var episodes = await cn.QueryAsync<Episode>(query);
-				cn.Dispose();
-				tester.AddRange(episodes.ToList());
-			}
+			Assert.IsNotNull(episodes);
+		}
 
-			Assert.AreEqual(tester.Count(), 1);
+		[TestMethod]
+		public void GetEpisodeByNumberTest()
+		{
+			var episodeNumber = 1;
+			var episodeClientService = new EpisodeClientService(baseUrl);
+			var episode = episodeClientService.GetEpisodeByNumber(episodeNumber);
+
+			Assert.AreEqual(episode.EpisodeNumber, episodeNumber);
+		}
+
+		[TestMethod]
+		public void GetEpisodesWithCharacterTest()
+		{
+			var characterName = "Bob";
+			var episodeClientService = new EpisodeClientService(baseUrl);
+			var episodes = episodeClientService.GetEpisodesWithCharacter(characterName);
+
+			Assert.IsNotNull(episodes);
 		}
 
 		[TestCleanup]
 		public void Cleanup()
 		{
+			// TODO : Cleanup post methods here, revert DB to original state (not testing anything but gets at the moment)
 		}
 	}
 }

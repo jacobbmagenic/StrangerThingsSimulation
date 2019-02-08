@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using StrangerThings.Common.Models;
 using System;
 using System.Collections.Generic;
@@ -14,14 +15,16 @@ namespace StrangerThings.Server.Repositories
 	public class SeasonRepository : ISeasonRepository
 	{
 		private IConnectionFactory _ConnectionFactory;
+		private ILogger _Logger;
 
 		/// <summary>
 		/// Instantiate SeasonRepository with ConnectionFactory injection
 		/// </summary>
 		/// <param name="connectionFactory">Variable containing DB connection data</param>
-		public SeasonRepository(IConnectionFactory connectionFactory)
+		public SeasonRepository(IConnectionFactory connectionFactory, ILogger logger)
 		{
 			_ConnectionFactory = connectionFactory;
+			_Logger = logger;
 		}
 
 		/// <summary>
@@ -30,13 +33,21 @@ namespace StrangerThings.Server.Repositories
 		/// <returns>Task<List<Season>></returns>
 		public async Task<List<Season>> GetAllSeasonsAsync()
 		{
-			var query = $"Select [Id], [SeasonNumber], [SeasonRating], [ReleaseDate] From [dbo].[Season]";
-
-			using (var cn = _ConnectionFactory.GetConnection())
+			try
 			{
-				var Seasons = await cn.QueryAsync<Season>(query);
-				cn.Dispose();
-				return Seasons.ToList();
+				var query = $"Select [Id], [SeasonNumber], [SeasonRating], [ReleaseDate] From [dbo].[Season]";
+
+				using (var cn = _ConnectionFactory.GetConnection())
+				{
+					var Seasons = await cn.QueryAsync<Season>(query);
+					cn.Dispose();
+					return Seasons.ToList();
+				}
+			}
+			catch (Exception ex)
+			{
+				_Logger.LogInformation($"Unexpected error: {ex.ToString()}");
+				throw new Exception(ex.ToString());
 			}
 		}
 
@@ -56,6 +67,7 @@ namespace StrangerThings.Server.Repositories
 
 				if (!Season.Any())
 				{
+					_Logger.LogInformation("No seasons found for the given input.");
 					throw new Exception("No seasons found for the given input.");
 				}
 				else
@@ -85,6 +97,7 @@ namespace StrangerThings.Server.Repositories
 			}
 			catch
 			{
+				_Logger.LogInformation("Invalid input Season number.");
 				throw new Exception("Invalid input Season number.");
 			}
 		}
@@ -113,6 +126,7 @@ namespace StrangerThings.Server.Repositories
 			}
 			catch
 			{
+				_Logger.LogInformation("Invalid input Season number.");
 				throw new Exception("Invalid input Season number.");
 			}
 		}
@@ -134,7 +148,8 @@ namespace StrangerThings.Server.Repositories
 
 				if (!deletedSeason.Any())
 				{
-					throw new Exception("No Seasons found for the given inputs.");
+					_Logger.LogInformation("No Seasons found for the given input.");
+					throw new Exception("No Seasons found for the given input.");
 				}
 				else
 					return deletedSeason.FirstOrDefault();

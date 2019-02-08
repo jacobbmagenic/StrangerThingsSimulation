@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using StrangerThings.Common.Models;
 using System;
 using System.Collections.Generic;
@@ -14,14 +15,16 @@ namespace StrangerThings.Server.Repositories
 	public class CharacterRepository : ICharacterRepository
 	{
 		private IConnectionFactory _ConnectionFactory;
+		private ILogger _Logger;
 
 		/// <summary>
 		/// Instantiate CharacterRepository with ConnectionFactory injection
 		/// </summary>
 		/// <param name="connectionFactory">Variable containing DB connection data</param>
-		public CharacterRepository(IConnectionFactory connectionFactory)
+		public CharacterRepository(IConnectionFactory connectionFactory, ILogger logger)
 		{
 			_ConnectionFactory = connectionFactory;
+			_Logger = logger;
 		}
 
 		/// <summary>
@@ -30,13 +33,21 @@ namespace StrangerThings.Server.Repositories
 		/// <returns>Task<List<Character>></returns>
 		public async Task<List<Character>> GetAllCharactersAsync()
 		{
-			var query = $"Select [Id], [Name], [Gender], [Age] From [dbo].[Character]";
-
-			using (var cn = _ConnectionFactory.GetConnection())
+			try
 			{
-				var characters = await cn.QueryAsync<Character>(query);
-				cn.Dispose();
-				return characters.ToList();
+				var query = $"Select [Id], [Name], [Gender], [Age] From [dbo].[Character]";
+
+				using (var cn = _ConnectionFactory.GetConnection())
+				{
+					var characters = await cn.QueryAsync<Character>(query);
+					cn.Dispose();
+					return characters.ToList();
+				}
+			}
+			catch(Exception ex)
+			{
+				_Logger.LogInformation($"Unexpected error: {ex.ToString()}");
+				throw new Exception(ex.ToString());
 			}
 		}
 
@@ -49,17 +60,26 @@ namespace StrangerThings.Server.Repositories
 		{
 			var query = $"Select [Id], [Name], [Gender], [Age] From [dbo].[Character] Where [Name] Like \'{characterName}\'";
 
-			using (var cn = _ConnectionFactory.GetConnection())
+			try
 			{
-				var character = await cn.QueryAsync<Character>(query);
-				cn.Dispose();
-
-				if (!character.Any())
+				using (var cn = _ConnectionFactory.GetConnection())
 				{
-					throw new Exception("No chatacters found for the given input.");
+					var character = await cn.QueryAsync<Character>(query);
+					cn.Dispose();
+
+					if (!character.Any())
+					{
+						_Logger.LogInformation("No chatacters found for the given input.");
+						throw new Exception("No chatacters found for the given input.");
+					}
+					else
+						return character.FirstOrDefault();
 				}
-				else
-					return character.FirstOrDefault();
+			}
+			catch (Exception ex)
+			{
+				_Logger.LogInformation($"Unexpected error: {ex.ToString()}");
+				throw new Exception(ex.ToString());
 			}
 		}
 
@@ -85,6 +105,7 @@ namespace StrangerThings.Server.Repositories
 			}
 			catch
 			{
+				_Logger.LogInformation("Invalid input character name.");
 				throw new Exception("Invalid input character name.");
 			}
 		}
@@ -113,7 +134,8 @@ namespace StrangerThings.Server.Repositories
 			}
 			catch
 			{
-				throw new Exception("Invalid input character name.");  //TODO:  Implement better error handling and logging
+				_Logger.LogInformation("Invalid input character name.");
+				throw new Exception("Invalid input character name.");
 			}
 		}
 
@@ -134,7 +156,8 @@ namespace StrangerThings.Server.Repositories
 
 				if (!deletedCharacter.Any())
 				{
-					throw new Exception("No characters found for the given inputs.");  //TODO:  Implement better error handling and logging
+					_Logger.LogInformation("No characters found for the given inputs.");
+					throw new Exception("No characters found for the given inputs.");
 				}
 				else
 					return deletedCharacter.FirstOrDefault();

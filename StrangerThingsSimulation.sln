@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrangerThings.Server", "StrangerThingsSimulation\StrangerThings.Server.csproj", "{C20784F3-BB86-44B9-AD81-0BC0F60796EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StrangerThings.Server", "StrangerThingsSimulation\StrangerThings.Server.csproj", "{C20784F3-BB86-44B9-AD81-0BC0F60796EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrangerThings.Server.Tests", "StrangerThings.Server.Tests\StrangerThings.Server.Tests.csproj", "{25F1C597-2F72-4C4E-8056-E102750F95B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StrangerThings.Server.Tests", "StrangerThings.Server.Tests\StrangerThings.Server.Tests.csproj", "{25F1C597-2F72-4C4E-8056-E102750F95B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrangerThings.Common", "StrangerThings.Common\StrangerThings.Common.csproj", "{10064BC2-4DA4-4BD3-B26D-CDEA4C586F7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StrangerThings.Common", "StrangerThings.Common\StrangerThings.Common.csproj", "{10064BC2-4DA4-4BD3-B26D-CDEA4C586F7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrangerThings.Client", "StrangerThings.Client\StrangerThings.Client.csproj", "{C598895C-1BF5-4F56-AB84-164256015F5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StrangerThings.Client", "StrangerThings.Client\StrangerThings.Client.csproj", "{C598895C-1BF5-4F56-AB84-164256015F5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
